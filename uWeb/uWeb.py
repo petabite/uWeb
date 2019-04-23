@@ -66,19 +66,18 @@ class uWeb:
             print()
 
     def render(self, html_file, variables=False, status=OK):
-
         try:
             rendered_content = self.readFile(html_file)
+            if variables:
+                for var_name, value in variables.items():
+                    rendered_content = rendered_content.replace(b"{{%s}}" % var_name, str(value).encode())
+            self.sendStatus(status)
+            self.sendHeaders({'Content-Type': 'text/html'})
+            self.sendBody(b'\n' + rendered_content)
         except Exception as e:
-            status = NOT_FOUND
+            self.render('500.html', status=self.ERROR)
             print(e)
-
-        if variables:
-            for var_name, value in variables.items():
-                rendered_content = rendered_content.replace(b"{{%s}}" % var_name, str(value).encode())
-        self.sendStatus(status)
-        self.sendHeaders({'Content-Type': 'text/html'})
-        self.sendBody(b'\n' + rendered_content)
+            print('No such file: %s' % html_file)
 
     def readFile(self, file):
         with open(file, 'r') as f:
