@@ -25,20 +25,24 @@ class uWeb:
         self.active_socket.bind(self.address)
         self.active_socket.listen(5)
 
-    def rootAction(self):
-        self.render('welcome.html')
-
-    def routes(self, routes={(GET, "/"): rootAction}):
+    def routes(self, routes={}):
         self.routes_dict = routes
 
     def router(self):
-        if self.resolveRequestLine():
+        if len(self.routes_dict) == 0:
+            self.render('welcome.html')
+        elif self.resolveRequestLine():
             command, path, http_ver = self.resolveRequestLine()
-            # print(self.routes.keys())
             if (command, path) in self.routes_dict.keys():
-                self.routes_dict[(command, path)](self)
+                # check for valid route
+                self.routes_dict[(command, path)]()
+            elif '.' in path:
+                #send file to client
+                print('looking for a file')
+                self.sendFile(path[1:])
             else:
-                self.render('404.html', status=self.NOT_FOUND)
+                self.sendStatus(NOT_FOUND)
+
 
     def start(self):
         print("Listening, connect your browser to http://<this_host>:8080/")
@@ -65,10 +69,8 @@ class uWeb:
 
             print()
 
-
-
     def render(self, html_file, variables=False, status=OK):
-        response_line = b"HTTP/1.0 "
+
         try:
             rendered_content = self.readFile(html_file)
         except Exception as e:
@@ -78,13 +80,29 @@ class uWeb:
         if variables:
             for var_name, value in variables.items():
                 rendered_content = rendered_content.replace(b"{{%s}}" % var_name, str(value).encode())
-
-        self.client_socket.write(response_line + status + b'\r\n\n' + rendered_content)
-        print('response', response_line + status + b'\r\n\n' + rendered_content)
+        self.sendStatus(status)
+        self.send(rendered_content)
 
     def readFile(self, file):
         with open(file, 'r') as f:
             return ''.join(f.readlines()).encode()
+
+    def sendFile(self, file):
+        try:
+            to_send = self.readFile(file)
+            self.sendStatus(self.OK)
+            self.send(to_send)
+        except Exception as e:
+            self.sendStatus(self.NOT_FOUND)
+            print(e)
+            print('File: %s was not found, so 404 was sent to client.' % file)
+
+    def sendStatus(self, status_code):
+        response_line = b"HTTP/1.1 "
+        self.send(response_line + status_code + b'\n\n')
+
+    def send(self, content):
+        self.client_socket.write(content)
 
     def resolveRequestLine(self):
         req_line = self.request_line.decode().strip().split(' ')
@@ -97,9 +115,9 @@ class uWeb:
             return False
 
 server = uWeb()
-def root(self):
-    self.render('content.html')
-server.routes({
+def root():
+    server.render('content.html')
+server.routes(({
     (uWeb.GET, "/"): root
-})
+}))
 server.start()
