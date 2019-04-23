@@ -13,11 +13,11 @@ class uWeb:
     BAD_REQUEST = b"400 Bad Request"
     ERROR = b"500 Internal Server Error"
 
-    def __init__(self):
-
+    def __init__(self, address, port):
+        #configure socket
         self.active_socket = socket.socket()
 
-        self.address_info = socket.getaddrinfo("0.0.0.0", 8080)
+        self.address_info = socket.getaddrinfo(address, port)
         self.address = self.address_info[0][-1]
         print("Bind address info:", self.address_info)
 
@@ -56,12 +56,8 @@ class uWeb:
 
             print("Client Request:")
             self.request_line = self.client_socket.readline()
-            print(self.request_line)
-            while True:
-                h = self.client_socket.readline()
-                if h == b"" or h == b"\r\n":
-                    break
-                print(h)
+            print(self.request_line.decode().strip())
+            self.extractHeaders()
             print('after req')
 
             self.router()
@@ -81,7 +77,8 @@ class uWeb:
             for var_name, value in variables.items():
                 rendered_content = rendered_content.replace(b"{{%s}}" % var_name, str(value).encode())
         self.sendStatus(status)
-        self.send(rendered_content)
+        self.sendHeaders({'Content-Type': 'text/html'})
+        self.sendBody(b'\n' + rendered_content)
 
     def readFile(self, file):
         with open(file, 'r') as f:
@@ -91,7 +88,7 @@ class uWeb:
         try:
             to_send = self.readFile(file)
             self.sendStatus(self.OK)
-            self.send(to_send)
+            self.sendBody(to_send)
         except Exception as e:
             self.sendStatus(self.NOT_FOUND)
             print(e)
@@ -99,10 +96,32 @@ class uWeb:
 
     def sendStatus(self, status_code):
         response_line = b"HTTP/1.1 "
-        self.send(response_line + status_code + b'\n\n')
+        self.send(response_line + status_code + b'\n')
+
+    def sendHeaders(self, headers_dict):
+        self.sendStatus(self.OK)
+        for key, value in headers_dict.items():
+            self.send(b"%s: %s\n" % (key.encode(), value.encode()))
+
+    def sendBody(self, body_content):
+        self.send(b'\n' + body_content)
 
     def send(self, content):
         self.client_socket.write(content)
+
+    def extractHeaders(self):
+        raw_headers = []
+        self.request_headers = {}
+        while True:
+            h = self.client_socket.readline()
+            if h == b"" or h == b"\r\n":
+                break
+            print(h.decode().strip())
+            raw_headers.append(h)
+        for header in raw_headers:
+            split_header = header.decode().strip().split(': ')
+            self.request_headers[split_header[0]] = split_header[1]
+        print(self.request_headers)
 
     def resolveRequestLine(self):
         req_line = self.request_line.decode().strip().split(' ')
@@ -114,10 +133,17 @@ class uWeb:
         else:
             return False
 
-server = uWeb()
+server = uWeb("0.0.0.0", 8080)
 def root():
     server.render('content.html')
+def header_test():
+    server.sendHeaders({
+        'adsf': 'yahhh',
+        'adwerf': 'yadsfhh',
+        'a23f': 'y234h',
+    })
 server.routes(({
-    (uWeb.GET, "/"): root
+    (uWeb.GET, "/"): root,
+    (uWeb.GET, "/header"): header_test
 }))
 server.start()
