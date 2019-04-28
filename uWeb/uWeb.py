@@ -143,7 +143,7 @@ class uWeb:
             self.request_headers[split_header[0]] = split_header[1]
 
         # extract body if its a POST request
-        if self.request_command == 'POST':
+        if self.request_command == self.POST:
             self.request_body = self.client_socket.read(int(self.request_headers['Content-Length'])).decode()
             if self.log:
                 print(self.request_body)

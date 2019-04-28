@@ -27,6 +27,12 @@
   1. Along with the μWeb project files, make sure you have a boot.py for the initial setup of your board(ie: connecting to wifi) and main.py for the main μWeb code.
   1. Power your board and enjoy!
 
+###### No MicroPython board? No problem!
+
+You can run uWeb with the MicroPython unix port
+  1. Build the unix MicroPython port ([here](https://github.com/micropython/micropython/wiki/Getting-Started#debian-ubuntu-mint-and-variants)) or get the prebuild executable ([here](https://github.com/petabite/uWeb/blob/master/bin/micropython?raw=true))
+  1. Run `micropython example.py` in your console.
+
 # QUICK START
 
 Example application using μWeb
@@ -71,13 +77,13 @@ To replace a variable in the HTML template, surround the variable name with { { 
 
 Example:
 
-content.html
+**content.html**
 ``` html
 <h1>Hello from {{name}}!</h1>
 <h3>1 + 1 = {{answer}}</h3>
 ```
 
-example.py
+**example.py**
 ```python
 vars = {
       'name': 'MicroPython',
@@ -86,9 +92,16 @@ vars = {
   server.render('content.html', variables=vars)
 ```
 
+**will render as:**
+
+``` html
+<h1>Hello from MicroPython!</h1>
+<h3>1 + 1 = 2</h3>
+```
+
 # DOCUMENTATION
 
-### Objects
+## Objects
 
 ### `uWeb.uWeb(address, port)`
 
@@ -99,7 +112,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   - address - (str) address to listen on
   - port - (int) port to listen on
 
-### Attributes
+## Attributes
 
   - `uWeb.address` - address that is bound to
   - `uWeb.port` - (int) port that is bound to
@@ -112,7 +125,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   - `uWeb.client_socket` - (socket) socket object of active socket
   - `uWeb.client_address` - address of client
 
-### Methods
+## Methods
 ## `uWeb.routes(routes={})`
 
    ###### Description
@@ -126,7 +139,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
    }
    ```
 
-      - HTTP_METHOD - method to listen for(see Constants)
+      - HTTP_METHOD - method to listen for(see [Constants](#constants))
       - PATH - URL to listen for
       - ACTION - function to be run when route matches
 
@@ -157,7 +170,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
    Send HTML file to client's browser
    ###### Parameters
   - html_file - (str) file name of html file to render
-  - variables - (dict) dictionary of variables to render html with(see Template Rendering).  
+  - variables - (dict) dictionary of variables to render html with(see [Template Rendering](#template-rendering)).  
 
     Example:
 
@@ -168,7 +181,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
     }
     ```
 
-  - status - (str) HTTP status to send to client. Default: uWeb.OK(see Constants)
+  - status - (str) HTTP status to send to client. Default: uWeb.OK(see [Constants](#constants))
 
 -----
 
@@ -195,7 +208,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   ###### Description
   Send HTTP response header to client with specified status
   ###### Parameters
-  - status_code - (str) HTTP status code(see Constants)
+  - status_code - (str) HTTP status code(see [Constants](#constants))
 
 ----
 
@@ -211,7 +224,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
         'header1': 'one',
         'header2': 'two',
         'header3': 'three',
-    }
+  }
   ```
 
 ----
@@ -225,7 +238,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-#### Helpers
+## Helpers
 
 ## `uWeb.router()`
 
@@ -284,7 +297,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-### Constants
+## Constants
 ##### HTTP Methods
   - uWeb.GET = 'GET'
   - uWeb.POST = 'POST'
