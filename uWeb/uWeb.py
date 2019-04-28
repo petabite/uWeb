@@ -43,8 +43,8 @@ class uWeb:
             elif '.' in self.request_path:
                 #send file to client
                 self.sendFile(self.request_path[1:])
-            else:
-                self.sendStatus(self.NOT_FOUND)
+        else:
+            self.sendStatus(self.ERROR)
 
     def start(self, log=True):
         self.log = log
@@ -147,6 +147,7 @@ class uWeb:
             self.request_body = self.client_socket.read(int(self.request_headers['Content-Length'])).decode()
             if self.log:
                 print(self.request_body)
+            self.sendStatus(self.OK)
 
     def resolveRequestLine(self):
         # parse request line from client
@@ -159,28 +160,6 @@ class uWeb:
         else:
             return False
 
-    def loadJSON(self, string):
-        # turn JSON string to dict
-        return json.loads(string)
-
-server = uWeb("0.0.0.0", 8080)
-def root():
-    server.render('content.html')
-def header_test():
-    server.sendHeaders({
-        'adsf': 'yahhh',
-        'adwerf': 'yadsfhh',
-        'a23f': 'y234h',
-    })
-def post():
-    print(server.loadJSON(server.request_body).items())
-def jsonn():
-    server.sendJSON({'status':'okkk'})
-
-server.routes(({
-    (uWeb.GET, "/"): root,
-    (uWeb.POST, "/"): post,
-    (uWeb.GET, "/json"): jsonn,
-    (uWeb.GET, "/header"): header_test
-}))
-server.start()
+def loadJSON(self, string):
+    # turn JSON string to dict
+    return json.loads(string)
