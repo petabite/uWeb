@@ -15,9 +15,10 @@
   - [Microcontroller](https://github.com/micropython/micropython/wiki/Boards-Summary) that supports micropython(such as NodeMCU ESP8266)
   - USB cable(possibly)
   - Wi-Fi connection
-  ##### MicroPython Libraries:
-    - ujson
-    - usocket
+
+##### MicroPython Libraries:
+  - ujson
+  - usocket
 
 # INSTALLATION
   1. Install micropython on your board of choice([ESP8266 installation](http://docs.micropython.org/en/latest/esp8266/tutorial/intro.html#intro))
@@ -90,12 +91,12 @@ vars = {
 ### Objects
  - `uWeb.uWeb(address, port)`
 
-  ###### Description
-    Initialize a uWeb object by configuring socket to bind and listen to specified address and port.
+ ###### Description
+Initialize a uWeb object by configuring socket to bind and listen to specified address and port.
 
   ###### Parameters
-    - address - (str) address to listen on
-    - port - (int) port to listen on
+  - address - (str) address to listen on
+  - port - (int) port to listen on
 
 ### Attributes
 
@@ -123,10 +124,13 @@ vars = {
        (HTTP_METHOD, PATH): ACTION
    }
    ```
+
       - HTTP_METHOD - method to listen for(see Constants)
       - PATH - URL to listen for
       - ACTION - function to be run when route matches
+
      - Example:
+
      ``` python
      {
          (uWeb.GET, "/"): home,
@@ -135,56 +139,71 @@ vars = {
          (uWeb.GET, "/header"): header
      }
      ```
+-----
+
   - `uWeb.start(log=True)`
 
   ###### Description
   Start the server.
   ###### Parameters
-    - log - (bool) default: True; toggle logging of client information and requests to console
+  - log - (bool) default: True; toggle logging of client information and requests to console
+
+-----
 
   - `uWeb.render(html_file, variables=False, status=OK)`
 
    ###### Description
    Send HTML file to client's browser
    ###### Parameters
-    - html_file - (str) file name of html file to render
-    - variables - (dict) dictionary of variables to render html with(see Template Rendering).   
+  - html_file - (str) file name of html file to render
+    - variables - (dict) dictionary of variables to render html with(see Template Rendering).  
+
     Example:
+
     ``` python
     {
       "variable_name_in_html": "replace_with_this",
       "another_one", (1 + 1)
     }
     ```
+
     - status - (str) HTTP status to send to client. Default: uWeb.OK(see Constants)
+
+-----
 
   - `uWeb.sendJSON(dict_to_send={})`
 
   ###### Description
   Send JSON body to client.
   ###### Parameters
-    - dict_to_send - (dict) dictionary with JSON data
+  - dict_to_send - (dict) dictionary with JSON data
+
+----
 
   - `uWeb.sendFile(filename)`
 
   ###### Description
   Send file such as .js or .css to client. This is automatically called depending on the path of the HTTP request. EX: if a .js is requested, uWeb will look for it and send it if it exists.
   ###### Parameters
-    - filename - (str) name of file to send
+  - filename - (str) name of file to send
+
+----
 
   - `uWeb.sendStatus(status_code)`
 
   ###### Description
   Send HTTP response header to client with specified status
   ###### Parameters
-    - status_code - (str) HTTP status code(see Constants)
+  - status_code - (str) HTTP status code(see Constants)
+
+----
 
   - `uWeb.sendHeaders(headers_dict={})`
 
   ###### Description
   Send HTTP headers to client.
   ###### Parameters
-    - headers_dict - (dict) dictionary containing header and values to be sent to client.
+  - headers_dict - (dict) dictionary containing header and values to be sent to client.
   Example:
   ```python
   {
@@ -193,12 +212,17 @@ vars = {
         'header3': 'three',
     }
   ```
+
+----
+
   - `uWeb.sendBody(body_content)`
 
   ###### Description
   Send response body content to client
   ###### Parameters
-    - body_content - (bytestring) body content to send
+  - body_content - (bytestring) body content to send
+
+----
 
 #### Helpers
 
@@ -207,27 +231,35 @@ vars = {
    ###### Description
    Handles requests and run actions when a route matches
 
+----
+
   - `uWeb.readFile(file)`
 
   ###### Description
   Read and encode a file
   ###### Parameters
-    - file - (str) filename of file to be read and encoded
+  - file - (str) filename of file to be read and encoded
 
   ###### Returns
     - (bytestring) encoded file
+
+----
 
   - `uWeb.send(content)`
 
    ###### Description
    Basic method to send bytestring to client
    ###### Parameters
-    - content - (bytestring) content to send
+  - content - (bytestring) content to send
+
+----
 
   - `uWeb.processRequest()`
 
    ###### Description
    Process request from client by extracting headers to request_headers and extract body to request_body if it is a POST request.
+
+----
 
   - `uWeb.resolveRequestLine()`
 
@@ -236,16 +268,19 @@ vars = {
     ###### Returns
       - (bool) True: if a valid request_line; False: if request_line empty
 
+----
+
   - `loadJSON(string)`
 
      ###### Description
      Not part of uWeb class. Easy way to convert a request_body containing a JSON string to a dict
      ###### Parameters
-      - string - (str) JSON string to convert to dictionary
+    - string - (str) JSON string to convert to dictionary
 
     ###### Returns
       - (dict) dictionary with converted JSON
 
+----
 
 ### Constants
 ##### HTTP Methods
