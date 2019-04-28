@@ -1,2 +1,2 @@
 # uWeb
-super simple web server for wifi-based micro-controllers running MicroPython (ie. ESP8266) 
+super simple web server for wifi-based micro-controllers that support MicroPython (ie. NodeMCU ESP8266) 
