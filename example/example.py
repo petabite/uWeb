@@ -5,7 +5,11 @@ from uWeb import uWeb, loadJSON
 server = uWeb("0.0.0.0", 8080)  #init uWeb object
 
 def home(): #render HTML page
-    server.render('content.html')
+    vars = {
+        'name': 'MicroPython',
+        'answer': (1+1)
+    }
+    server.render('content.html', variables=vars)
 
 def header(): #send headers to client
     server.sendHeaders({

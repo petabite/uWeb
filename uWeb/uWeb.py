@@ -85,15 +85,15 @@ class uWeb:
                 print('No such file: %s' % html_file)
                 self.render('500.html', status=self.ERROR)
 
-    def sendJSON(self, dict_to_send):
+    def sendJSON(self, dict_to_send={}):
         # send JSON data to client
         self.sendStatus(self.OK)
         self.sendBody(json.dumps(dict_to_send))
 
-    def sendFile(self, file):
+    def sendFile(self, filename):
         # send file(ie: js, css) to client
         try:
-            to_send = self.readFile(file)
+            to_send = self.readFile(filename)
             self.sendStatus(self.OK)
             self.sendBody(to_send)
         except Exception as e:
@@ -105,7 +105,7 @@ class uWeb:
         response_line = b"HTTP/1.1 "
         self.send(response_line + status_code + b'\n')
 
-    def sendHeaders(self, headers_dict):
+    def sendHeaders(self, headers_dict={}):
         # send HTTP headers to client
         self.sendStatus(self.OK)
         for key, value in headers_dict.items():
@@ -160,6 +160,6 @@ class uWeb:
         else:
             return False
 
-def loadJSON(self, string):
+def loadJSON(string):
     # turn JSON string to dict
     return json.loads(string)
