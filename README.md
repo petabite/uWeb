@@ -89,7 +89,8 @@ vars = {
 # DOCUMENTATION
 
 ### Objects
- - `uWeb.uWeb(address, port)`
+
+### `uWeb.uWeb(address, port)`
 
  ###### Description
 Initialize a uWeb object by configuring socket to bind and listen to specified address and port.
@@ -112,7 +113,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   - `uWeb.client_address` - address of client
 
 ### Methods
-  - `uWeb.routes(routes={})`
+## `uWeb.routes(routes={})`
 
    ###### Description
    Use this method to specify routes for the app.
@@ -141,7 +142,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
      ```
 -----
 
-  - `uWeb.start(log=True)`
+## `uWeb.start(log=True)`
 
   ###### Description
   Start the server.
@@ -150,13 +151,13 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 -----
 
-  - `uWeb.render(html_file, variables=False, status=OK)`
+## `uWeb.render(html_file, variables=False, status=OK)`
 
    ###### Description
    Send HTML file to client's browser
    ###### Parameters
   - html_file - (str) file name of html file to render
-    - variables - (dict) dictionary of variables to render html with(see Template Rendering).  
+  - variables - (dict) dictionary of variables to render html with(see Template Rendering).  
 
     Example:
 
@@ -167,11 +168,11 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
     }
     ```
 
-    - status - (str) HTTP status to send to client. Default: uWeb.OK(see Constants)
+  - status - (str) HTTP status to send to client. Default: uWeb.OK(see Constants)
 
 -----
 
-  - `uWeb.sendJSON(dict_to_send={})`
+## `uWeb.sendJSON(dict_to_send={})`
 
   ###### Description
   Send JSON body to client.
@@ -180,7 +181,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-  - `uWeb.sendFile(filename)`
+## `uWeb.sendFile(filename)`
 
   ###### Description
   Send file such as .js or .css to client. This is automatically called depending on the path of the HTTP request. EX: if a .js is requested, uWeb will look for it and send it if it exists.
@@ -189,7 +190,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-  - `uWeb.sendStatus(status_code)`
+## `uWeb.sendStatus(status_code)`
 
   ###### Description
   Send HTTP response header to client with specified status
@@ -198,7 +199,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-  - `uWeb.sendHeaders(headers_dict={})`
+## `uWeb.sendHeaders(headers_dict={})`
 
   ###### Description
   Send HTTP headers to client.
@@ -215,7 +216,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-  - `uWeb.sendBody(body_content)`
+## `uWeb.sendBody(body_content)`
 
   ###### Description
   Send response body content to client
@@ -226,14 +227,14 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 #### Helpers
 
-  - `uWeb.router()`
+## `uWeb.router()`
 
    ###### Description
    Handles requests and run actions when a route matches
 
 ----
 
-  - `uWeb.readFile(file)`
+## `uWeb.readFile(file)`
 
   ###### Description
   Read and encode a file
@@ -241,11 +242,11 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   - file - (str) filename of file to be read and encoded
 
   ###### Returns
-    - (bytestring) encoded file
+  - (bytestring) encoded file
 
 ----
 
-  - `uWeb.send(content)`
+## `uWeb.send(content)`
 
    ###### Description
    Basic method to send bytestring to client
@@ -254,31 +255,32 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-  - `uWeb.processRequest()`
+## `uWeb.processRequest()`
 
    ###### Description
    Process request from client by extracting headers to request_headers and extract body to request_body if it is a POST request.
 
 ----
 
-  - `uWeb.resolveRequestLine()`
+## `uWeb.resolveRequestLine()`
 
-    ###### Description
-    Parse request line from client. Sets: request_command, request_path, and request_http_ver
-    ###### Returns
-      - (bool) True: if a valid request_line; False: if request_line empty
+  ###### Description
+  Parse request line from client. Sets: request_command, request_path, and request_http_ver
+  ###### Returns
+  - (bool) True: if a valid request_line; False: if request_line empty
 
 ----
 
-  - `loadJSON(string)`
+## `loadJSON(string)`
 
-     ###### Description
-     Not part of uWeb class. Easy way to convert a request_body containing a JSON string to a dict
-     ###### Parameters
-    - string - (str) JSON string to convert to dictionary
+   ###### Description
+   Not part of uWeb class. Easy way to convert a request_body containing a JSON string to a dict
+
+   ###### Parameters
+  - string - (str) JSON string to convert to dictionary
 
     ###### Returns
-      - (dict) dictionary with converted JSON
+  - (dict) dictionary with converted JSON
 
 ----
 
