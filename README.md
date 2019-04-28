@@ -132,26 +132,24 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
    Use this method to specify routes for the app.
    ###### Parameters
    - routes - (dict) dictionary containing routes in format:
-   ``` python
-   {
-       (HTTP_METHOD, PATH): ACTION,
-       (HTTP_METHOD, PATH): ACTION
-   }
-   ```
-
-      - HTTP_METHOD - method to listen for(see [Constants](#constants))
-      - PATH - URL to listen for
-      - ACTION - function to be run when route matches
-
-     - Example:
-
      ``` python
      {
-         (uWeb.GET, "/"): home,
-         (uWeb.POST, "/post"): post,
-         (uWeb.GET, "/json"): jsonn,
-         (uWeb.GET, "/header"): header
+         (HTTP_METHOD, PATH): ACTION,
+         (HTTP_METHOD, PATH): ACTION
      }
+     ```
+       - HTTP_METHOD - method to listen for(see [Constants](#constants))
+       - PATH - URL to listen for
+       - ACTION - function to be run when route matches
+   
+     Example:
+     ``` python
+       {
+           (uWeb.GET, "/"): home,
+           (uWeb.POST, "/post"): post,
+           (uWeb.GET, "/json"): jsonn,
+           (uWeb.GET, "/header"): header
+       }
      ```
 -----
 
