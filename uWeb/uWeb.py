@@ -23,7 +23,8 @@ class uWeb:
         self.address_info = socket.getaddrinfo(self.address, self.port)
         self.address = self.address_info[0][-1]
         print("Bind address info:", self.address_info)
-
+        self.setSupportedFileTypes()
+        self.routes() #init empty routes_dict
         self.active_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.active_socket.bind(self.address)
         self.active_socket.listen(5)
@@ -40,7 +41,7 @@ class uWeb:
             if (self.request_command, self.request_path) in self.routes_dict.keys():
                 # check for valid route
                 self.routes_dict[(self.request_command, self.request_path)]()
-            elif '.' in self.request_path:
+            elif '.' + self.request_path.split('.')[1] in self.supported_file_types:
                 #send file to client
                 self.sendFile(self.request_path[1:])
         else:
@@ -98,7 +99,7 @@ class uWeb:
             self.sendBody(to_send)
         except Exception as e:
             self.sendStatus(self.NOT_FOUND)
-            print('File: %s was not found, so 404 was sent to client.' % file)
+            print('File: %s was not found, so 404 was sent to client.' % filename)
 
     def sendStatus(self, status_code):
         # send HTTP header w/ status to client
@@ -114,6 +115,10 @@ class uWeb:
     def sendBody(self, body_content):
         # send HTTP body content to client
         self.send(b'\n' + body_content)
+
+    def setSupportedFileTypes(self, file_types = ['.js', '.css']):
+        #set allowed file types to be sent if requested
+        self.supported_file_types = file_types
 
     #HELPER METHODS
     def readFile(self, file):

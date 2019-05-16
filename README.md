@@ -141,7 +141,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
        - HTTP_METHOD - method to listen for(see [Constants](#constants))
        - PATH - URL to listen for
        - ACTION - function to be run when route matches
-   
+
      Example:
      ``` python
        {
@@ -233,6 +233,15 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   Send response body content to client
   ###### Parameters
   - body_content - (bytestring) body content to send
+
+----
+
+## `uWeb.setSupportedFileTypes(file_types = ['.js', '.css'])`
+
+  ###### Description
+  Specify the file extensions to be allowed to be sent to the client if it is requested. Use to protect your backend of your Microcontroller. NOTE: Be careful when allowing file types such as .py because the client can request /boot.py and may exposed sensitive info such as your wi-fi password if you have it set there.
+  ###### Parameters
+  - file_types - (list) file extensions to whitelist. Default: .js and .css
 
 ----
 
