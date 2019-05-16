@@ -1,5 +1,6 @@
 import usocket as socket
 import ujson as json
+import network
 
 class uWeb:
     GET = 'GET'
@@ -22,7 +23,7 @@ class uWeb:
 
         self.address_info = socket.getaddrinfo(self.address, self.port)
         self.address = self.address_info[0][-1]
-        print("Bind address info:", self.address_info)
+        print("Bind address info:", self.address_info[0][4])
         self.setSupportedFileTypes()
         self.routes() #init empty routes_dict
         self.active_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -51,7 +52,7 @@ class uWeb:
 
     def start(self, log=True):
         self.log = log
-        print("uWeb server started! Connect to http://%s:%s/" % (self.address, self.port))
+        print("uWeb server started! Connect to http://%s:%s/" % (network.WLAN(network.STA_IF).ifconfig()[0], self.port))
         if not self.log:
             print("Server logs are currently off.")
         while True:
@@ -116,7 +117,7 @@ class uWeb:
 
     def sendBody(self, body_content):
         # send HTTP body content to client
-        self.send(b'\n' + body_content)
+        self.send(b'\n' + body_content + b'\n\n')
 
     def setSupportedFileTypes(self, file_types = ['.js', '.css']):
         #set allowed file types to be sent if requested
