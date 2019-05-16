@@ -42,7 +42,7 @@ class uWeb:
             if (self.request_command, self.request_path) in self.routes_dict.keys():
                 # check for valid route
                 self.routes_dict[(self.request_command, self.request_path)]()
-            elif (self.request_path != '/') and ('.' + self.request_path.split('.')[1] in self.supported_file_types):
+            elif ('.' in self.request_path) and ('.' + self.request_path.split('.')[1] in self.supported_file_types):
                 #send file to client
                 self.sendFile(self.request_path[1:])
             else:
