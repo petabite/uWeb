@@ -44,6 +44,8 @@ class uWeb:
             elif '.' + self.request_path.split('.')[1] in self.supported_file_types:
                 #send file to client
                 self.sendFile(self.request_path[1:])
+            else:
+                self.sendStatus(self.NOT_FOUND)
         else:
             self.sendStatus(self.ERROR)
 
