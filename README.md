@@ -240,6 +240,8 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
   ###### Description
   Specify the file extensions to be allowed to be sent to the client if it is requested. Use to protect your backend of your Microcontroller. NOTE: Be careful when allowing file types such as .py because the client can request /boot.py and may exposed sensitive info such as your wi-fi password if you have it set there.
+
+  This only applies to GET requests. You can still manually send files of any extension with [sendFile()](#uwebsendfilefilename)
   ###### Parameters
   - file_types - (list) file extensions to whitelist. Default: .js and .css
 
