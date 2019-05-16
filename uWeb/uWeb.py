@@ -42,7 +42,7 @@ class uWeb:
             if (self.request_command, self.request_path) in self.routes_dict.keys():
                 # check for valid route
                 self.routes_dict[(self.request_command, self.request_path)]()
-            elif '.' + self.request_path.split('.')[1] in self.supported_file_types:
+            elif (self.request_path != '/') and ('.' + self.request_path.split('.')[1] in self.supported_file_types):
                 #send file to client
                 self.sendFile(self.request_path[1:])
             else:
@@ -56,22 +56,25 @@ class uWeb:
         if not self.log:
             print("Server logs are currently off.")
         while True:
-            connection = self.active_socket.accept()
-            self.client_socket = connection[0]
-            self.client_address = connection[1]
-            if self.log:
-                print()
-                print("Client address:", self.client_address)
-                print("Client socket:", self.client_socket)
-                print("Client Request:")
-            self.request_line = self.client_socket.readline()
-            if bool(self.request_line):  #check if request not empty
+            try:
+                connection = self.active_socket.accept()
+                self.client_socket = connection[0]
+                self.client_address = connection[1]
                 if self.log:
-                    print(self.request_line.decode().strip())
-                self.resolveRequestLine()
-                self.processRequest()
-                self.router()
-            self.client_socket.close()
+                    print()
+                    print("Client address:", self.client_address)
+                    print("Client socket:", self.client_socket)
+                    print("Client Request:")
+                self.request_line = self.client_socket.readline()
+                if bool(self.request_line):  #check if request not empty
+                    if self.log:
+                        print(self.request_line.decode().strip())
+                    self.resolveRequestLine()
+                    self.processRequest()
+                    self.router()
+                self.client_socket.close()
+            except Exception as e:
+                print(e)
 
     def render(self, html_file, variables=False, status=OK):
         # send HTML file to client
