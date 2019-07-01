@@ -1,5 +1,6 @@
 import usocket as socket
 import ujson as json
+import gc
 import network
 
 class uWeb:
@@ -79,18 +80,20 @@ class uWeb:
     def render(self, html_file, variables=False, status=OK):
         # send HTML file to client
         try:
-            rendered_content = self.readFile(html_file)
+            gc.collect()
             if variables:
                 for var_name, value in variables.items():
                     rendered_content = rendered_content.replace(b"{{%s}}" % var_name, str(value).encode())
             self.sendStatus(status)
             self.sendHeaders({'Content-Type': 'text/html'})
-            self.sendBody(b'\n' + rendered_content)
+            self.sendFile(html_file)
         except Exception as e:
             if e.args[0] == 2:
                 #catch file not found
                 print('No such file: %s' % html_file)
                 self.render('500.html', status=self.ERROR)
+            else:
+                print(e)
 
     def sendJSON(self, dict_to_send={}):
         # send JSON data to client
@@ -100,9 +103,12 @@ class uWeb:
     def sendFile(self, filename):
         # send file(ie: js, css) to client
         try:
-            to_send = self.readFile(filename)
             self.sendStatus(self.OK)
-            self.sendBody(to_send)
+            self.send(b'\n')
+            with open(filename, 'r') as f:
+                for line in f:
+                    self.send(line.encode())
+            self.send(b'\n\n')
         except Exception as e:
             self.sendStatus(self.NOT_FOUND)
             print('File: %s was not found, so 404 was sent to client.' % filename)
@@ -129,8 +135,11 @@ class uWeb:
     #HELPER METHODS
     def readFile(self, file):
         # read file and encode
-        with open(file, 'r') as f:
-            return ''.join(f.readlines()).encode()
+        try:
+            with open(file, 'r') as f:
+                return ''.join(f.readlines()).encode()
+        except Exception as e:
+            print(e)
 
     def send(self, content):
         # send to client @ socket-level
