@@ -259,7 +259,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 ## `uWeb.readFile(file)`
 
   ###### Description
-  Read and encode a file
+  Read and encode a file. Depending on your hardware, this method may raise a memory allocation error if the file is larger than the available memory.
   ###### Parameters
   - file - (str) filename of file to be read and encoded
 
