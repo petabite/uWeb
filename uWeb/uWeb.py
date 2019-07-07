@@ -2,6 +2,7 @@ import usocket as socket
 import ujson as json
 import gc
 import network
+import sys
 
 class uWeb:
     GET = 'GET'
@@ -75,25 +76,29 @@ class uWeb:
                     self.router()
                 self.client_socket.close()
             except Exception as e:
-                print(e)
+                sys.print_exception(e)
 
     def render(self, html_file, variables=False, status=OK):
         # send HTML file to client
         try:
             gc.collect()
-            if variables:
-                for var_name, value in variables.items():
-                    rendered_content = rendered_content.replace(b"{{%s}}" % var_name, str(value).encode())
             self.sendStatus(status)
             self.sendHeaders({'Content-Type': 'text/html'})
-            self.sendFile(html_file)
+            self.send(b'\n')
+            with open(html_file, 'r') as f:
+                for line in f:
+                    if variables:
+                        for var_name, value in variables.items():
+                            line = line.replace("{{%s}}" % var_name, str(value))
+                    self.send(line.encode())
+            self.send(b'\n\n')
         except Exception as e:
             if e.args[0] == 2:
                 #catch file not found
                 print('No such file: %s' % html_file)
                 self.render('500.html', status=self.ERROR)
             else:
-                print(e)
+                sys.print_exception(e)
 
     def sendJSON(self, dict_to_send={}):
         # send JSON data to client
