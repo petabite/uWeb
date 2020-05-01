@@ -66,6 +66,7 @@
   - [Constants](#constants)
         - [HTTP Methods](#http-methods)
         - [HTTP Status Codes](#http-status-codes)
+        - [MIME types](#mime-types)
 
 # FEATURES
   - Simple URL routing to actions
@@ -307,7 +308,8 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 ## `uWeb.sendFile(filename)`
 
   ###### Description
-  Send file such as .js or .css to client. This is automatically called depending on the path of the HTTP request. EX: if a .js is requested, uWeb will look for it and send it if it exists.
+  - Send file to client along with its appropriate Content-Type header. This is automatically called depending on the path of the HTTP request. EX: if a .js is requested, uWeb will look for it and send it if it exists.
+  - Add MIME types by appending to the `MIME_TYPES` dictionary
   ###### Parameters
   - filename - (str) name of file to send
 
@@ -433,3 +435,13 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   - uWeb.FORBIDDEN = b"403 Forbidden"
   - uWeb.BAD_REQUEST = b"400 Bad Request"
   - uWeb.ERROR = b"500 Internal Server Error"
+
+##### MIME types
+  - 'css': 'text/css'
+  - 'html': 'text/html'
+  - 'jpeg': 'image/jpeg'
+  - 'jpg': 'image/jpeg'
+  - 'js': 'text/javascript'
+  - 'json': 'application/json'
+  - 'rtf': 'application/rtf'
+  - 'svg': 'image/svg+xml'
