@@ -10,6 +10,7 @@ def home(): #render HTML page
     server.render('content.html', variables=vars)
 
 def header(): #send headers to client
+    server.sendStatus(server.OK)
     server.sendHeaders({
         'header1': 'one',
         'header2': 'two',

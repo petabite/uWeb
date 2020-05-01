@@ -59,9 +59,9 @@ class uWeb:
                 #send file to client
                 self.sendFile(self.request_path[1:])
             else:
-                self.sendStatus(self.NOT_FOUND)
+                self.render('404.html', layout=None, status=self.NOT_FOUND)
         else:
-            self.sendStatus(self.ERROR)
+            self.render('505.html', layout=None, status=self.ERROR)
 
     def start(self, log=True):
         self.log = log

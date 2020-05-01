@@ -114,12 +114,17 @@ Example application using μWeb
 ``` python
 from uWeb import uWeb, loadJSON
 
-server = uWeb("0.0.0.0", 8080)  #init uWeb object
+server = uWeb("0.0.0.0", 8000)  #init uWeb object
 
 def home(): #render HTML page
-    server.render('content.html')
+    vars = {
+        'name': 'MicroPython',
+        'answer': (1+1)
+    }
+    server.render('content.html', variables=vars)
 
 def header(): #send headers to client
+    server.sendStatus(server.OK)
     server.sendHeaders({
         'header1': 'one',
         'header2': 'two',
@@ -142,7 +147,6 @@ server.routes(({
 
 #start server
 server.start()
-
 ```
 ### Template Rendering  
 
