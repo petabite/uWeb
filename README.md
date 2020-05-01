@@ -6,6 +6,7 @@
 # TABLE OF CONTENTS
 - [TABLE OF CONTENTS](#table-of-contents)
 - [FEATURES](#features)
+- [CHANGELOG](#changelog)
 - [REQUIREMENTS](#requirements)
 - [INSTALLATION](#installation)
 - [QUICK START](#quick-start)
@@ -76,6 +77,15 @@
   - Send files and json to client
   - Parse headers and body from client
 
+# CHANGELOG
+
+**v1.1 - //20**
+- layout rendering
+- send appropriate Content-Type headers when sending files
+
+**v1.0 - 7/6/19**
+- First release!
+
 # REQUIREMENTS
   - [Microcontroller](https://github.com/micropython/micropython/wiki/Boards-Summary) that supports micropython(such as NodeMCU ESP8266)
   - USB cable(possibly)
@@ -137,7 +147,7 @@ server.start()
 ### Template Rendering  
 
 - μWeb comes loaded with a simple template rendering system that can render HTML with python variables.
-- To replace a variable in the HTML template, surround the variable name with { {  } }. Then, render the template with the variables parameter.
+- To replace a variable in the HTML template, surround the variable name with { {  } }. Then, render the template with the variables argument.
 
 Example:
 
