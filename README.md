@@ -3,6 +3,8 @@
 
 -------
 
+# TABLE OF CONTENTS
+- [TABLE OF CONTENTS](#table-of-contents)
 - [FEATURES](#features)
 - [REQUIREMENTS](#requirements)
 - [INSTALLATION](#installation)
@@ -40,7 +42,7 @@
   - [`uWeb.sendBody(body_content)`](#uwebsendbodybodycontent)
           - [Description](#description-8)
           - [Parameters](#parameters-8)
-  - [`uWeb.setSupportedFileTypes(file_types = ['.js', '.css'])`](#uwebsetsupportedfiletypesfiletypes--js-css)
+  - [`uWeb.setSupportedFileTypes(file_types = ['js', 'css'])`](#uwebsetsupportedfiletypesfiletypes--js-css)
           - [Description](#description-9)
           - [Parameters](#parameters-9)
   - [Helpers](#helpers)
@@ -346,12 +348,13 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-## `uWeb.setSupportedFileTypes(file_types = ['.js', '.css'])`
+## `uWeb.setSupportedFileTypes(file_types = ['js', 'css'])`
 
   ###### Description
-  Specify the file extensions to be allowed to be sent to the client if it is requested. Use to protect your backend of your Microcontroller. NOTE: Be careful when allowing file types such as .py because the client can request /boot.py and may exposed sensitive info such as your wi-fi password if you have it set there.
-
-  This only applies to GET requests. You can still manually send files of any extension with [sendFile()](#uwebsendfilefilename)
+  - Specify the file extensions to be allowed to be sent to the client if it is requested. Use to protect your backend of your Microcontroller.
+  - When allowing additional files, don't forget to include 'js' and 'css' in the list as well
+  - This only applies to GET requests. You can still manually send files of any extension with [sendFile()](#uwebsendfilefilename)
+  - NOTE: Be careful when allowing file types such as .py because the client can request /boot.py and may exposed sensitive info such as your wi-fi password if you have it set there.
   ###### Parameters
   - file_types - (list) file extensions to whitelist. Default: .js and .css
 

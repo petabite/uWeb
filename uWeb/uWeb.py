@@ -17,6 +17,17 @@ class uWeb:
     BAD_REQUEST = b"400 Bad Request"
     ERROR = b"500 Internal Server Error"
 
+    MIME_TYPES = {
+        'css': 'text/css',
+        'html': 'text/html',
+        'jpeg': 'image/jpeg',
+        'jpg': 'image/jpeg',
+        'js': 'text/javascript',
+        'json': 'application/json',
+        'rtf': 'application/rtf',
+        'svg': 'image/svg+xml'
+    }
+
     def __init__(self, address, port):
         #configure socket
         self.address = address
@@ -127,15 +138,19 @@ class uWeb:
     def sendJSON(self, dict_to_send={}):
         # send JSON data to client
         self.sendStatus(self.OK)
+        self.sendHeaders({'Content-Type': 'application/json'})
         self.sendBody(json.dumps(dict_to_send))
 
     def sendFile(self, filename):
         # send file(ie: js, css) to client
+        name, extension = filename.split('.')
         try:
-            if filename.split('.')[1] in self.supported_file_types:
+            if extension in self.supported_file_types:
                 # check if included in allowed file types
                 with open(filename, 'r') as f:
                     self.sendStatus(self.OK)
+                    if extension in self.MIME_TYPES.keys():
+                        self.sendHeaders({'Content-Type': self.MIME_TYPES[extension]}) # send content type
                     self.send(b'\n')
                     for line in f:
                         self.send(line.encode())
