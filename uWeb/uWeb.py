@@ -44,7 +44,7 @@ class uWeb:
             if (self.request_command, self.request_path) in self.routes_dict.keys():
                 # check for valid route
                 self.routes_dict[(self.request_command, self.request_path)]()
-            elif ('.' in self.request_path) and ('.' + self.request_path.split('.')[1] in self.supported_file_types):
+            elif ('.' in self.request_path):
                 #send file to client
                 self.sendFile(self.request_path[1:])
             else:
@@ -54,7 +54,7 @@ class uWeb:
 
     def start(self, log=True):
         self.log = log
-        print("uWeb server started! Connect to http://%s:%s/" % (network.WLAN(network.STA_IF).ifconfig()[0], self.port))
+        # TODO: uncomment on release print("uWeb server started! Connect to http://%s:%s/" % (network.WLAN(network.STA_IF).ifconfig()[0], self.port))
         if not self.log:
             print("Server logs are currently off.")
         while True:
@@ -78,25 +78,49 @@ class uWeb:
             except Exception as e:
                 sys.print_exception(e)
 
-    def render(self, html_file, variables=False, status=OK):
+    def render(self, html_file, layout='layout.html', variables=False, status=OK):
         # send HTML file to client
         try:
-            gc.collect()
-            self.sendStatus(status)
-            self.sendHeaders({'Content-Type': 'text/html'})
-            self.send(b'\n')
-            with open(html_file, 'r') as f:
-                for line in f:
-                    if variables:
-                        for var_name, value in variables.items():
-                            line = line.replace("{{%s}}" % var_name, str(value))
-                    self.send(line.encode())
+            if layout:
+                # layout rendering
+                file = layout
+                with open(layout, 'r') as f:
+                    gc.collect()
+                    self.sendStatus(status)
+                    self.sendHeaders({'Content-Type': 'text/html'})
+                    self.send(b'\n')
+                    for line in f:
+                        if '{{yield}}' in line:
+                            splitted = line.split('{{yield}}')
+                            self.send(splitted[0].encode())
+                            with open(html_file, 'r') as f:
+                                for line in f:
+                                    if variables:
+                                        for var_name, value in variables.items():
+                                            line = line.replace("{{%s}}" % var_name, str(value))
+                                    self.send(line.encode())
+                            self.send(splitted[1].encode())
+                        else: 
+                            self.send(line.encode())
+            else:
+                # no layout rendering
+                gc.collect()
+                self.sendStatus(status)
+                self.sendHeaders({'Content-Type': 'text/html'})
+                self.send(b'\n')
+                file = html_file
+                with open(html_file, 'r') as f:
+                    for line in f:
+                        if variables:
+                            for var_name, value in variables.items():
+                                line = line.replace("{{%s}}" % var_name, str(value))
+                        self.send(line.encode())
             self.send(b'\n\n')
         except Exception as e:
             if e.args[0] == 2:
                 #catch file not found
-                print('No such file: %s' % html_file)
-                self.render('500.html', status=self.ERROR)
+                print('No such file: %s' % file)
+                self.render('500.html', layout=None, status=self.ERROR)
             else:
                 sys.print_exception(e)
 
@@ -108,12 +132,17 @@ class uWeb:
     def sendFile(self, filename):
         # send file(ie: js, css) to client
         try:
-            self.sendStatus(self.OK)
-            self.send(b'\n')
-            with open(filename, 'r') as f:
-                for line in f:
-                    self.send(line.encode())
-            self.send(b'\n\n')
+            if filename.split('.')[1] in self.supported_file_types:
+                # check if included in allowed file types
+                with open(filename, 'r') as f:
+                    self.sendStatus(self.OK)
+                    self.send(b'\n')
+                    for line in f:
+                        self.send(line.encode())
+                self.send(b'\n\n')
+            else:
+                self.sendStatus(self.ERROR)
+                print('File: %s is not an allowed file' % filename)
         except Exception as e:
             self.sendStatus(self.NOT_FOUND)
             print('File: %s was not found, so 404 was sent to client.' % filename)
@@ -125,7 +154,7 @@ class uWeb:
 
     def sendHeaders(self, headers_dict={}):
         # send HTTP headers to client
-        self.sendStatus(self.OK)
+        # self.sendStatus(self.OK)
         for key, value in headers_dict.items():
             self.send(b"%s: %s\n" % (key.encode(), value.encode()))
 
@@ -133,7 +162,7 @@ class uWeb:
         # send HTTP body content to client
         self.send(b'\n' + body_content + b'\n\n')
 
-    def setSupportedFileTypes(self, file_types = ['.js', '.css']):
+    def setSupportedFileTypes(self, file_types = ['js', 'css']):
         #set allowed file types to be sent if requested
         self.supported_file_types = file_types
 
