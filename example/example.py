@@ -5,6 +5,7 @@ from uWeb import uWeb, loadJSON
 server = uWeb("0.0.0.0", 8000)  #init uWeb object
 
 def home(): #render HTML page
+    print('in home funciton')
     vars = {
         'name': 'MicroPython',
         'answer': (1+1)
