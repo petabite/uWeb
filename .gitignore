@@ -1,3 +1,18 @@
+# Project files
+uWeb/*
+!uWeb/404.html
+!uWeb/500.html
+!uWeb/welcome.html
+!uWeb/layout.html
+!uWeb/uWeb.py
+
+### VisualStudioCode ###
+.vscode/
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

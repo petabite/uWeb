@@ -1,22 +1,98 @@
-# μWeb (a.k.a microWeb)
-###### Super simple web server for wifi-based micro-controllers that support MicroPython (ie. NodeMCU ESP8266)
+<h1>μWeb (a.k.a microWeb)</h1>
+<h5>Super simple web server for wifi-based micro-controllers that support MicroPython (ie. NodeMCU ESP8266)</h5>
 
 -------
 
+# TABLE OF CONTENTS
+- [TABLE OF CONTENTS](#table-of-contents)
+- [FEATURES](#features)
+- [CHANGELOG](#changelog)
+- [REQUIREMENTS](#requirements)
+- [INSTALLATION](#installation)
+- [QUICK START](#quick-start)
+    - [Template Rendering](#template-rendering)
+    - [Layout Rendering](#layout-rendering)
+- [DOCUMENTATION](#documentation)
+  - [Objects](#objects)
+    - [`uWeb.uWeb(address, port)`](#uwebuwebaddress-port)
+          - [Description](#description)
+          - [Parameters](#parameters)
+  - [Attributes](#attributes)
+  - [Methods](#methods)
+  - [`uWeb.routes(routes={})`](#uwebroutesroutes)
+          - [Description](#description-1)
+          - [Parameters](#parameters-1)
+  - [`uWeb.start(log=True)`](#uwebstartlogtrue)
+          - [Description](#description-2)
+          - [Parameters](#parameters-2)
+  - [`uWeb.render(html_file, layout='layout.html', variables=False, status=OK)`](#uwebrenderhtmlfile-layoutlayouthtml-variablesfalse-statusok)
+          - [Description](#description-3)
+          - [Parameters](#parameters-3)
+  - [`uWeb.sendJSON(dict_to_send={})`](#uwebsendjsondicttosend)
+          - [Description](#description-4)
+          - [Parameters](#parameters-4)
+  - [`uWeb.sendFile(filename)`](#uwebsendfilefilename)
+          - [Description](#description-5)
+          - [Parameters](#parameters-5)
+  - [`uWeb.sendStatus(status_code)`](#uwebsendstatusstatuscode)
+          - [Description](#description-6)
+          - [Parameters](#parameters-6)
+  - [`uWeb.sendHeaders(headers_dict={})`](#uwebsendheadersheadersdict)
+          - [Description](#description-7)
+          - [Parameters](#parameters-7)
+  - [`uWeb.sendBody(body_content)`](#uwebsendbodybodycontent)
+          - [Description](#description-8)
+          - [Parameters](#parameters-8)
+  - [`uWeb.setSupportedFileTypes(file_types = ['js', 'css'])`](#uwebsetsupportedfiletypesfiletypes--js-css)
+          - [Description](#description-9)
+          - [Parameters](#parameters-9)
+  - [Helpers](#helpers)
+  - [`uWeb.router()`](#uwebrouter)
+          - [Description](#description-10)
+  - [`uWeb.readFile(file)`](#uwebreadfilefile)
+          - [Description](#description-11)
+          - [Parameters](#parameters-10)
+          - [Returns](#returns)
+  - [`uWeb.send(content)`](#uwebsendcontent)
+          - [Description](#description-12)
+          - [Parameters](#parameters-11)
+  - [`uWeb.processRequest()`](#uwebprocessrequest)
+          - [Description](#description-13)
+  - [`uWeb.resolveRequestLine()`](#uwebresolverequestline)
+          - [Description](#description-14)
+          - [Returns](#returns-1)
+  - [`loadJSON(string)`](#loadjsonstring)
+          - [Description](#description-15)
+          - [Parameters](#parameters-12)
+  - [Constants](#constants)
+        - [HTTP Methods](#http-methods)
+        - [HTTP Status Codes](#http-status-codes)
+        - [MIME types](#mime-types)
+
 # FEATURES
   - Simple URL routing to actions
-  - Render templates to the client
+  - Render templates with layouts to the client
   - Super simple HTML templating
   - HTTP request parsing
   - Send files and json to client
   - Parse headers and body from client
+
+# CHANGELOG
+
+**v1.1 - 5/19/20**
+- layout rendering
+- send appropriate Content-Type headers when sending files
+- version attribute
+
+**v1.0 - 7/6/19**
+- First release!
 
 # REQUIREMENTS
   - [Microcontroller](https://github.com/micropython/micropython/wiki/Boards-Summary) that supports micropython(such as NodeMCU ESP8266)
   - USB cable(possibly)
   - Wi-Fi connection
 
-##### MicroPython Libraries:
+**MicroPython Libraries:**
   - ujson
   - usocket
 
@@ -27,11 +103,11 @@
   1. Along with the μWeb project files, make sure you have a boot.py for the initial setup of your board(ie: connecting to wifi) and main.py for the main μWeb code.
   1. Power your board and enjoy!
 
-###### No MicroPython board? No problem!
+**No MicroPython board? No problem!**
 
 You can run uWeb with the MicroPython unix port
   1. Build the unix MicroPython port ([here](https://github.com/micropython/micropython/wiki/Getting-Started#debian-ubuntu-mint-and-variants)) or get the prebuild executable ([here](https://github.com/petabite/uWeb/blob/master/bin/micropython?raw=true))
-  1. Run `micropython example.py` in your console.
+  2. Run `micropython example.py` in your console.
 
 # QUICK START
 
@@ -39,12 +115,17 @@ Example application using μWeb
 ``` python
 from uWeb import uWeb, loadJSON
 
-server = uWeb("0.0.0.0", 8080)  #init uWeb object
+server = uWeb("0.0.0.0", 8000)  #init uWeb object
 
 def home(): #render HTML page
-    server.render('content.html')
+    vars = {
+        'name': 'MicroPython',
+        'answer': (1+1)
+    }
+    server.render('content.html', variables=vars)
 
 def header(): #send headers to client
+    server.sendStatus(server.OK)
     server.sendHeaders({
         'header1': 'one',
         'header2': 'two',
@@ -67,13 +148,11 @@ server.routes(({
 
 #start server
 server.start()
-
 ```
 ### Template Rendering  
 
-μWeb comes loaded with a simple template rendering system that can render HTML with python variables.
-
-To replace a variable in the HTML template, surround the variable name with { {  } }. Then, render the template with the variables parameter.
+- μWeb comes loaded with a simple template rendering system that can render HTML with python variables.
+- To replace a variable in the HTML template, surround the variable name with { {  } }. Then, render the template with the variables argument.
 
 Example:
 
@@ -99,6 +178,54 @@ vars = {
 <h3>1 + 1 = 2</h3>
 ```
 
+### Layout Rendering
+
+- Template rendering can be combined with layout rendering so that templates can share the same layout
+- The default layout is `layout.html`
+- Specify a specific layout to render your template with using the `layout` argument in the `render` function
+- Use `{{yield}}` to specify where in the layout you want the content to render
+
+Using the example from above:
+
+**content.html**
+``` html
+<h1>Hello from {{name}}!</h1>
+<h3>1 + 1 = {{answer}}</h3>
+```
+
+**cool-layout.html**
+``` html
+<head>
+    <title>cool site</title>
+</head>
+<body>
+    <h1>this is a cool layout dude</h1>
+    {{yield}}
+</body>
+```
+
+**example.py**
+```python
+vars = {
+      'name': 'MicroPython',
+      'answer': (1+1)
+  }
+  server.render('content.html', layout='cool-layout.html', variables=vars) # if you are using layout.html, the layout argument may be left out
+```
+
+**will render as:**
+
+``` html
+<head>
+    <title>cool site</title>
+</head>
+<body>
+    <h1>this is a cool layout dude</h1>
+    <h1>Hello from MicroPython!</h1>
+    <h3>1 + 1 = 2</h3>
+</body>
+```
+
 # DOCUMENTATION
 
 ## Objects
@@ -114,6 +241,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ## Attributes
 
+  - `uWeb.version` - (str) uWeb version
   - `uWeb.address` - address that is bound to
   - `uWeb.port` - (int) port that is bound to
   - `uWeb.routes_dict` - (dict) all routes
@@ -162,12 +290,13 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 -----
 
-## `uWeb.render(html_file, variables=False, status=OK)`
+## `uWeb.render(html_file, layout='layout.html', variables=False, status=OK)`
 
    ###### Description
    Send HTML file to client's browser
    ###### Parameters
   - html_file - (str) file name of html file to render
+  - layout - (str) layout to render `html_file` with(see [Layout Rendering](#layout-rendering))
   - variables - (dict) dictionary of variables to render html with(see [Template Rendering](#template-rendering)).  
 
     Example:
@@ -195,7 +324,8 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 ## `uWeb.sendFile(filename)`
 
   ###### Description
-  Send file such as .js or .css to client. This is automatically called depending on the path of the HTTP request. EX: if a .js is requested, uWeb will look for it and send it if it exists.
+  - Send file to client along with its appropriate Content-Type header. This is automatically called depending on the path of the HTTP request. EX: if a .js is requested, uWeb will look for it and send it if it exists.
+  - Add MIME types by appending to the `MIME_TYPES` dictionary
   ###### Parameters
   - filename - (str) name of file to send
 
@@ -236,12 +366,13 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ----
 
-## `uWeb.setSupportedFileTypes(file_types = ['.js', '.css'])`
+## `uWeb.setSupportedFileTypes(file_types = ['js', 'css'])`
 
   ###### Description
-  Specify the file extensions to be allowed to be sent to the client if it is requested. Use to protect your backend of your Microcontroller. NOTE: Be careful when allowing file types such as .py because the client can request /boot.py and may exposed sensitive info such as your wi-fi password if you have it set there.
-
-  This only applies to GET requests. You can still manually send files of any extension with [sendFile()](#uwebsendfilefilename)
+  - Specify the file extensions to be allowed to be sent to the client if it is requested. Use to protect your backend of your Microcontroller.
+  - When allowing additional files, don't forget to include 'js' and 'css' in the list as well
+  - This only applies to GET requests. You can still manually send files of any extension with [sendFile()](#uwebsendfilefilename)
+  - NOTE: Be careful when allowing file types such as .py because the client can request /boot.py and may exposed sensitive info such as your wi-fi password if you have it set there.
   ###### Parameters
   - file_types - (list) file extensions to whitelist. Default: .js and .css
 
@@ -320,3 +451,13 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
   - uWeb.FORBIDDEN = b"403 Forbidden"
   - uWeb.BAD_REQUEST = b"400 Bad Request"
   - uWeb.ERROR = b"500 Internal Server Error"
+
+##### MIME types
+  - 'css': 'text/css'
+  - 'html': 'text/html'
+  - 'jpeg': 'image/jpeg'
+  - 'jpg': 'image/jpeg'
+  - 'js': 'text/javascript'
+  - 'json': 'application/json'
+  - 'rtf': 'application/rtf'
+  - 'svg': 'image/svg+xml'
