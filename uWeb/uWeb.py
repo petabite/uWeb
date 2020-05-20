@@ -49,42 +49,50 @@ class uWeb:
         # set routes dict
         self.routes_dict = routes
 
-    def router(self):
+    def router(self, writer):
         if len(self.routes_dict) == 0:
-            self.render('welcome.html')
+            await self.render('welcome.html')
         elif self.request_command:
             if (self.request_command, self.request_path) in self.routes_dict.keys():
                 # check for valid route
+                # try:
                 loop = uasyncio.get_event_loop()
                 loop.create_task(self.routes_dict[(self.request_command, self.request_path)]())
+                # except TypeError:
+                # await self.routes_dict[(self.request_command, self.request_path)]()
             elif ('.' in self.request_path):
                 #send file to client
-                self.sendFile(self.request_path[1:])
+                await self.sendFile(self.request_path[1:])
             else:
-                self.render('404.html', layout=None, status=self.NOT_FOUND)
+                await self.render('404.html', layout=None, status=self.NOT_FOUND)
         else:
-            self.render('505.html', layout=None, status=self.ERROR)
+            await self.render('505.html', layout=None, status=self.ERROR)
+        await writer.aclose()
         
 
     def start(self, log=True):
         self.log = log
         loop = uasyncio.get_event_loop()
-        loop.run_until_complete(uasyncio.start_server(self.serverRoutine, self.address, self.port)) # Schedule server loop
+        loop.create_task(uasyncio.start_server(self.serverRoutine, self.address, self.port)) # Schedule server loop
         loop.run_forever()
 
     def serverRoutine(self, reader, writer):
-        # TODO: uncomment on release print("uWeb server started! Connect to http://%s:%s/" % (network.WLAN(network.STA_IF).ifconfig()[0], self.port))
+        # TODO: uncomment on release print("uWeb server started! Connect to http://%s:%s/" % (self.address, self.port))
         if not self.log:
             print("Server logs are currently off.")
         self.reader = reader
         self.writer = writer
         self.request = yield from reader.read()
-        print(self.request)
+        print()
         if bool(self.request):  #check if request not empty
             if self.log:
                 print(self.request.decode().strip())
             self.processRequest()
-            self.router()       
+            await self.router(writer)
+
+        # self.send(b'HTTP/1.0 200 OK\r\n')
+        # self.send(b'adsf')
+        # await uasyncio.sleep(0)
         # while True:
         #     try:
                 # connection = self.active_socket.accept()
@@ -114,50 +122,50 @@ class uWeb:
                 file = layout
                 with open(layout, 'r') as f:
                     gc.collect()
-                    self.sendStatus(status)
-                    self.sendHeaders({'Content-Type': 'text/html'})
-                    self.send(b'\n')
+                    await self.sendStatus(status)
+                    await self.sendHeaders({'Content-Type': 'text/html'})
+                    await self.send(b'\n')
                     for line in f:
                         if '{{yield}}' in line:
                             splitted = line.split('{{yield}}')
-                            self.send(splitted[0].encode())
+                            await self.send(splitted[0].encode())
                             with open(html_file, 'r') as f:
                                 for line in f:
                                     if variables:
                                         for var_name, value in variables.items():
                                             line = line.replace("{{%s}}" % var_name, str(value))
-                                    self.send(line.encode())
-                            self.send(splitted[1].encode())
+                                    await self.send(line.encode())
+                            await self.send(splitted[1].encode())
                         else: 
-                            self.send(line.encode())
+                            await self.send(line.encode())
             else:
                 # no layout rendering
                 gc.collect()
-                self.sendStatus(status)
-                self.sendHeaders({'Content-Type': 'text/html'})
-                self.send(b'\n')
+                await self.sendStatus(status)
+                await self.sendHeaders({'Content-Type': 'text/html'})
+                await self.send(b'\n')
                 file = html_file
                 with open(html_file, 'r') as f:
                     for line in f:
                         if variables:
                             for var_name, value in variables.items():
                                 line = line.replace("{{%s}}" % var_name, str(value))
-                        self.send(line.encode())
-            self.send(b'\n\n')
+                        await self.send(line.encode())
+            await self.send(b'\n\n')
         except Exception as e:
             if e.args[0] == 2:
                 #catch file not found
                 print('No such file: %s' % file)
-                self.render('500.html', layout=None, status=self.ERROR)
+                await self.render('500.html', layout=None, status=self.ERROR)
             else:
                 sys.print_exception(e)
         # uasyncio.sleep(0)
 
     def sendJSON(self, dict_to_send={}):
         # send JSON data to client
-        self.sendStatus(self.OK)
-        self.sendHeaders({'Content-Type': 'application/json'})
-        self.sendBody(json.dumps(dict_to_send))
+        await self.sendStatus(self.OK)
+        await self.sendHeaders({'Content-Type': 'application/json'})
+        await self.sendBody(json.dumps(dict_to_send))
 
     def sendFile(self, filename):
         # send file(ie: js, css) to client
@@ -166,34 +174,34 @@ class uWeb:
             if extension in self.supported_file_types:
                 # check if included in allowed file types
                 with open(filename, 'r') as f:
-                    self.sendStatus(self.OK)
+                    await self.sendStatus(self.OK)
                     if extension in self.MIME_TYPES.keys():
-                        self.sendHeaders({'Content-Type': self.MIME_TYPES[extension]}) # send content type
-                    self.send(b'\n')
+                        await self.sendHeaders({'Content-Type': self.MIME_TYPES[extension]}) # send content type
+                    await self.send(b'\n')
                     for line in f:
-                        self.send(line.encode())
-                self.send(b'\n\n')
+                        await self.send(line.encode())
+                await self.send(b'\n\n')
             else:
-                self.sendStatus(self.ERROR)
+                await self.sendStatus(self.ERROR)
                 print('File: %s is not an allowed file' % filename)
         except Exception as e:
-            self.sendStatus(self.NOT_FOUND)
+            await self.sendStatus(self.NOT_FOUND)
             print('File: %s was not found, so 404 was sent to client.' % filename)
 
     def sendStatus(self, status_code):
         # send HTTP header w/ status to client
         response_line = b"HTTP/1.1 "
-        self.send(response_line + status_code + b'\n')
+        await self.send(response_line + status_code + b'\n')
 
     def sendHeaders(self, headers_dict={}):
         # send HTTP headers to client
         # self.sendStatus(self.OK)
         for key, value in headers_dict.items():
-            self.send(b"%s: %s\n" % (key.encode(), value.encode()))
+            await self.send(b"%s: %s\n" % (key.encode(), value.encode()))
 
     def sendBody(self, body_content):
         # send HTTP body content to client
-        self.send(b'\n' + body_content + b'\n\n')
+        await self.send(b'\n' + body_content + b'\n\n')
 
     def setSupportedFileTypes(self, file_types = ['js', 'css']):
         #set allowed file types to be sent if requested
@@ -210,8 +218,8 @@ class uWeb:
 
     def send(self, content):
         # send to client @ socket-level
-        self.writer.awrite(content)
-        print('sent: ', content)
+        print('sending: ', content)
+        await self.writer.awrite(content)
 
     def processRequest(self):
         #process request from client --> extract request line + headers + body
