@@ -79,9 +79,10 @@
 
 # CHANGELOG
 
-**v1.1 - //20**
+**v1.1 - 5/19/20**
 - layout rendering
 - send appropriate Content-Type headers when sending files
+- version attribute
 
 **v1.0 - 7/6/19**
 - First release!
@@ -240,6 +241,7 @@ Initialize a uWeb object by configuring socket to bind and listen to specified a
 
 ## Attributes
 
+  - `uWeb.version` - (str) uWeb version
   - `uWeb.address` - address that is bound to
   - `uWeb.port` - (int) port that is bound to
   - `uWeb.routes_dict` - (dict) all routes

@@ -5,6 +5,7 @@ import network
 import sys
 
 class uWeb:
+    version = 'uWeb-v1.1'
     GET = 'GET'
     POST = 'POST'
     PUT = 'PUT'
@@ -65,7 +66,7 @@ class uWeb:
 
     def start(self, log=True):
         self.log = log
-        # TODO: uncomment on release print("uWeb server started! Connect to http://%s:%s/" % (network.WLAN(network.STA_IF).ifconfig()[0], self.port))
+        # TODO: uncomment when deploying to board print("uWeb server started! Connect to http://%s:%s/" % (network.WLAN(network.STA_IF).ifconfig()[0], self.port))
         if not self.log:
             print("Server logs are currently off.")
         while True:
