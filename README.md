@@ -45,7 +45,7 @@
 
 <ins>**uWeb-uasyncio**</ins>
 
-**v1.0 - //20**
+**v1.0 - 5/20/20**
 
 - First release!
 
@@ -65,19 +65,19 @@
 
 This repo contains both uWeb and uWeb-uasyncio. Both versions have their own use cases
 
-|     ;-;     |                                         uWeb                                          |                                                      uWeb-uasyncio                                                      |
-| :---------: | :-----------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------: |
-| concurrency |                    not concurrent, uses usocket(blocking sockets)                     |                                supports concurrency, uses uasyncio(non-blocking sockets)                                |
-| when to use |             when you need a simple web server to serve HTML or send data              |       when endpoints call functions that take time to run and having the server respond to requests is important        |
-|  use cases  | simple API that serves static files or sends some JSON data(concurrency not required) | app where a request to an endpoint invokes a function that sleeps for some time but still responds to incoming requests |
+|     ;-;     |                                         uWeb                                          |                                                          uWeb-uasyncio                                                          |
+| :---------: | :-----------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
+| concurrency |                      synchronous, uses usocket(blocking sockets)                      |                                        asynchronous, uses uasyncio(non-blocking sockets)                                        |
+| when to use |             when you need a simple web server to serve HTML or send data              |   when endpoints call functions that take time to run and having the server still be able to respond to requests is important   |
+|  use cases  | simple API that serves static files or sends some JSON data(concurrency not required) | app where a request to an endpoint invokes a function that sleeps for some time but still needs to respond to incoming requests |
 
-**TLDR; uWeb can be used when concurrency is not important. uWeb-uasyncio can be used when concurrency is important
+**TLDR; uWeb can be used when concurrency is not important. uWeb-uasyncio can be used when concurrency is important**
 
 # Installation
 
 1. Install micropython on your board of choice([ESP8266 installation](http://docs.micropython.org/en/latest/esp8266/tutorial/intro.html#intro))
 2. Copy the μWeb project files to your board over the web using [MicroPython's WebREPL](https://github.com/micropython/webrepl) or through a serial connection with [Adafruit's ampy](https://github.com/pycampers/ampy)
-     - chose either `uWeb.py` or `uWeb_uasyncio.py` depending on your needs
+   - chose either `uWeb.py` or `uWeb_uasyncio.py` depending on your needs
 3. If your version of MicroPython does not come with ujson, usocket or uasyncio(if needed) precompiled, copy them from [micropython-lib](https://github.com/micropython/micropython-lib)
 4. Along with the μWeb project files, make sure you have a boot.py for the initial setup of your board(ie: connecting to wifi) and main.py for the main μWeb code.
 5. Power up your board and enjoy!
@@ -184,7 +184,7 @@ server.start()
 # Using uWeb-uasyncio
 
 - when configuring routes, endpoint functions are treated as asynchronous so they must have an `await` statement in its body
-- usually uWeb class methods can be preceded with `await`
+- uWeb class methods can be preceded with `await`
 - when using other functions that aren't `await`able, `await uasyncio.sleep(0)` can be used (as seen in the example)
 - more info about using `uasyncio`: [uasyncio docs](https://github.com/peterhinch/micropython-async/blob/master/TUTORIAL.md)
 
@@ -269,6 +269,8 @@ server.render('content.html', layout='cool-layout.html', variables=vars) # if yo
   <h3>1 + 1 = 2</h3>
 </body>
 ```
+
 # Documentation
+
 - [uWeb](https://github.com/petabite/uWeb/blob/master/docs/uWeb.md)
 - [uWeb-uasyncio](https://github.com/petabite/uWeb/blob/master/docs/uWeb-uasyncio.md)
