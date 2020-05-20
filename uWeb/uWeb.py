@@ -5,6 +5,7 @@ import sys
 import uasyncio
 
 class uWeb:
+    version = 'uWeb-v1.1'
     GET = 'GET'
     POST = 'POST'
     PUT = 'PUT'
