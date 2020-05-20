@@ -5,6 +5,7 @@ uWeb/*
 !uWeb/welcome.html
 !uWeb/layout.html
 !uWeb/uWeb.py
+!uWeb/uWeb_uasyncio.py
 
 ### VisualStudioCode ###
 .vscode/

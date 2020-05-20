@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../uWeb')
 from uWeb import uWeb, loadJSON
 
 server = uWeb("0.0.0.0", 8000)  #init uWeb object
