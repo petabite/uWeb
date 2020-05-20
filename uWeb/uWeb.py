@@ -1,4 +1,3 @@
-import usocket as socket
 import ujson as json
 import gc
 import network
@@ -30,92 +29,63 @@ class uWeb:
     }
 
     def __init__(self, address, port):
-        #configure socket
         self.address = address
         self.port = port
-        # self.active_socket = socket.socket()
 
-        # self.address_info = socket.getaddrinfo(self.address, self.port)
-        # self.address = self.address_info[0][-1]
-        # print("Bind address info:", self.address_info[0][4])
         self.setSupportedFileTypes()
         self.routes() #init empty routes_dict
-        # self.active_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # self.active_socket.bind(self.address)
-        # self.active_socket.listen(5)
+
 
     #BACKEND SERVER METHODS
     def routes(self, routes={}):
         # set routes dict
-        self.routes_dict = routes
-
-    def router(self, writer):
-        if len(self.routes_dict) == 0:
-            await self.render('welcome.html')
-        elif self.request_command:
-            if (self.request_command, self.request_path) in self.routes_dict.keys():
-                # check for valid route
-                # try:
-                loop = uasyncio.get_event_loop()
-                loop.create_task(self.routes_dict[(self.request_command, self.request_path)]())
-                # except TypeError:
-                # await self.routes_dict[(self.request_command, self.request_path)]()
-            elif ('.' in self.request_path):
-                #send file to client
-                await self.sendFile(self.request_path[1:])
-            else:
-                await self.render('404.html', layout=None, status=self.NOT_FOUND)
-        else:
-            await self.render('505.html', layout=None, status=self.ERROR)
-        await writer.aclose()
-        
+        self.routes_dict = routes        
 
     def start(self, log=True):
         self.log = log
         loop = uasyncio.get_event_loop()
-        loop.create_task(uasyncio.start_server(self.serverRoutine, self.address, self.port)) # Schedule server loop
+        loop.create_task(uasyncio.start_server(self.router, self.address, self.port)) # Schedule server loop
+        # TODO: uncomment on release print("uWeb server started! Connect to http://%s:%s/" % (network.WLAN(network.STA_IF).ifconfig()[0], self.port))
         loop.run_forever()
 
-    def serverRoutine(self, reader, writer):
-        # TODO: uncomment on release print("uWeb server started! Connect to http://%s:%s/" % (self.address, self.port))
-        if not self.log:
-            print("Server logs are currently off.")
+    def router(self, reader, writer):
         self.reader = reader
         self.writer = writer
-        self.request = yield from reader.read()
-        print()
-        if bool(self.request):  #check if request not empty
+        try:
+            self.request = await reader.read()
+            if not self.log:
+                print("Server logs are currently off.")
             if self.log:
-                print(self.request.decode().strip())
-            self.processRequest()
-            await self.router(writer)
-
-        # self.send(b'HTTP/1.0 200 OK\r\n')
-        # self.send(b'adsf')
-        # await uasyncio.sleep(0)
-        # while True:
-        #     try:
-                # connection = self.active_socket.accept()
-                # self.client_socket = connection[0]
-                # self.client_address = connection[1]
-                # if self.log:
-                    # print("Client address:", self.client_address)
-                    # print("Client socket:", self.client_socket)
-                    # print("Client Request:")
-                # self.request_line = self.client_socket.readline()
-                # if bool(self.request_line):  #check if request not empty
-                #     if self.log:
-                #         print(self.request_line.decode().strip())
-                #     self.resolveRequestLine()
-                #     self.processRequest()
-                #     self.router()
-                # self.client_socket.close()
-            # except Exception as e:
-            #     sys.print_exception(e)
+                print('INCOMING REQUEST FROM %s' % (writer.get_extra_info('peername')))
+                print('----------------')
+            if bool(self.request):  #check if request not empty
+                if self.log:
+                    print(self.request.decode().strip())
+                    print()
+                self.processRequest()
+                if len(self.routes_dict) == 0:
+                    await self.render('welcome.html')
+                elif self.request_command:
+                    if (self.request_command, self.request_path) in self.routes_dict.keys():
+                        # check for valid route
+                        loop = uasyncio.get_event_loop()
+                        loop.create_task(self.routes_dict[(self.request_command, self.request_path)]())
+                    elif ('.' in self.request_path):
+                        #send file to client
+                        await self.sendFile(self.request_path[1:])
+                    else:
+                        await self.render('404.html', layout=None, status=self.NOT_FOUND)
+                else:
+                    await self.render('505.html', layout=None, status=self.ERROR)
+                await writer.aclose()
+                if self.log: 
+                    print('closed connection')
+                    print()
+        except Exception as e:
+            sys.print_exception(e)
 
     def render(self, html_file, layout='layout.html', variables=False, status=OK):
         # send HTML file to client
-        print('in render funciton')
         try:
             if layout:
                 # layout rendering
@@ -195,7 +165,6 @@ class uWeb:
 
     def sendHeaders(self, headers_dict={}):
         # send HTTP headers to client
-        # self.sendStatus(self.OK)
         for key, value in headers_dict.items():
             await self.send(b"%s: %s\n" % (key.encode(), value.encode()))
 
@@ -222,7 +191,7 @@ class uWeb:
         await self.writer.awrite(content)
 
     def processRequest(self):
-        #process request from client --> extract request line + headers + body
+        # process request from client --> extract request line + headers + body
         self.request_headers = {}
 
         # parse request line and headers from client
@@ -235,20 +204,16 @@ class uWeb:
             self.request_path = request_line[1]
             self.request_http_ver = request_line[2]
 
-
+        # extract headers
         raw_headers, body = rest_of_request.split(b'\r\n\r\n', 1)
         raw_headers = raw_headers.split(b'\r\n')
         for header in raw_headers:
             split_header = header.decode().strip().split(': ')
             self.request_headers[split_header[0]] = split_header[1]
 
-        print("Headers: ", self.request_headers)
-
         # extract body if its a POST request and send OK status
         if self.request_command == self.POST:
             self.request_body = body.decode()
-            if self.log:
-                print("Body: ", self.request_body)
             self.sendStatus(self.OK)        
 
 def loadJSON(string):
