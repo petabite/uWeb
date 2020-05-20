@@ -9,11 +9,11 @@
 - [Features](#features)
 - [Changelog](#changelog)
 - [Requirements](#requirements)
-- [uWeb vs. uWeb-uasyncio](#uweb-vs-uweb-uasyncio)
+- [μWeb vs. μWeb-uasyncio](#%ce%bcweb-vs-%ce%bcweb-uasyncio)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
     - [Example application using μWeb](#example-application-using-%ce%bcweb)
-    - [Example application using uWeb-uasyncio](#example-application-using-uweb-uasyncio)
+    - [Example application using μWeb-uasyncio](#example-application-using-%ce%bcweb-uasyncio)
 - [Using uWeb-uasyncio](#using-uweb-uasyncio)
 - [Template Rendering](#template-rendering)
 - [Layout Rendering](#layout-rendering)
@@ -61,11 +61,11 @@
 - usocket
 - uasyncio(for uasyncio version)
 
-# uWeb vs. uWeb-uasyncio
+# μWeb vs. μWeb-uasyncio
 
 This repo contains both uWeb and uWeb-uasyncio. Both versions have their own use cases
 
-|     ;-;     |                                         uWeb                                          |                                                          uWeb-uasyncio                                                          |
+|     ;-;     |                                         μWeb                                          |                                                          μWeb-uasyncio                                                          |
 | :---------: | :-----------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
 | concurrency |                      synchronous, uses usocket(blocking sockets)                      |                                        asynchronous, uses uasyncio(non-blocking sockets)                                        |
 | when to use |             when you need a simple web server to serve HTML or send data              |   when endpoints call functions that take time to run and having the server still be able to respond to requests is important   |
@@ -131,7 +131,7 @@ server.routes(({
 server.start()
 ```
 
-### Example application using uWeb-uasyncio
+### Example application using μWeb-uasyncio
 
 ```python
 import uasyncio
