@@ -12,8 +12,8 @@
 - [μWeb vs. μWeb-uasyncio](#%ce%bcweb-vs-%ce%bcweb-uasyncio)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-    - [Example application using μWeb](#example-application-using-%ce%bcweb)
-    - [Example application using μWeb-uasyncio](#example-application-using-%ce%bcweb-uasyncio)
+  - [Example application using μWeb](#example-application-using-%ce%bcweb)
+  - [Example application using μWeb-uasyncio](#example-application-using-%ce%bcweb-uasyncio)
 - [Using uWeb-uasyncio](#using-uweb-uasyncio)
 - [Template Rendering](#template-rendering)
 - [Layout Rendering](#layout-rendering)
@@ -96,88 +96,100 @@ You can run uWeb with the MicroPython unix port
 ```python
 from uWeb import uWeb, loadJSON
 
-server = uWeb("0.0.0.0", 8000)  #init uWeb object
+server = uWeb("0.0.0.0", 8000)  # init uWeb object
 
-def home(): #render HTML page
-    vars = {
-        'name': 'MicroPython',
-        'answer': (1+1)
-    }
-    server.render('content.html', variables=vars)
 
-def header(): #send headers to client
+def home():  # render HTML page
+    vars = {"name": "MicroPython", "answer": (1 + 1)}
+    server.render("content.html", variables=vars)
+
+
+def header():  # send headers to client
     server.sendStatus(server.OK)
-    server.sendHeaders({
-        'header1': 'one',
-        'header2': 'two',
-        'header3': 'three',
-    })
+    server.sendHeaders(
+        {"header1": "one", "header2": "two", "header3": "three",}
+    )
 
-def post(): #print JSON body from client
+
+def post():  # print JSON body from client
     print(loadJSON(server.request_body).items())
+    server.sendStatus(server.OK)
 
-def jsonn(): #send JSON to client
-    server.sendJSON({'status':'okkk'})
 
-#configure routes
-server.routes(({
-    (uWeb.GET, "/"): home,
-    (uWeb.POST, "/post"): post,
-    (uWeb.GET, "/json"): jsonn,
-    (uWeb.GET, "/header"): header
-}))
+def jsonn():  # send JSON to client
+    server.sendJSON({"status": "okkk"})
 
-#start server
+# configure routes
+server.routes(
+    (
+        {
+            (uWeb.GET, "/"): home,
+            (uWeb.POST, "/post"): post,
+            (uWeb.GET, "/json"): jsonn,
+            (uWeb.GET, "/header"): header,
+        }
+    )
+)
+
+# start server
 server.start()
+
 ```
 
 ### Example application using μWeb-uasyncio
 
 ```python
 import uasyncio
+
 from uWeb_uasyncio import uWeb_uasyncio as uWeb
 from uWeb_uasyncio import loadJSON
 
-server = uWeb("0.0.0.0", 8000)  #init uWeb object
+server = uWeb("0.0.0.0", 8000)  # init uWeb object
 
-def home(): #render HTML page
-    vars = {
-        'name': 'MicroPython',
-        'answer': (1+1)
-    }
-    await server.render('content.html', variables=vars)
 
-def printTen(): # counts to ten while still accepting incoming requests
+def home():  # render HTML page
+    vars = {"name": "MicroPython", "answer": (1 + 1)}
+    await server.render("content.html", variables=vars)
+
+
+def printTen():  # counts to ten while still accepting incoming requests
     await server.sendStatus(server.OK)
     for i in range(10):
         print(i)
         await uasyncio.sleep(1)
 
-def header(): #send headers to client
+
+def header():  # send headers to client
     await server.sendStatus(server.OK)
-    await server.sendHeaders({
-        'header1': 'one',
-        'header2': 'two',
-        'header3': 'three',
-    })
+    await server.sendHeaders(
+        {"header1": "one", "header2": "two", "header3": "three",}
+    )
 
-def post(): #print JSON body from client
-    print('Payload: ', loadJSON(server.request_body))
-    await uasyncio.sleep(0)
 
-def jsonn(): #send JSON to client
-    await server.sendJSON({'status':'okkk'})
+def post():  # print JSON body from client
+    print("Payload: ", loadJSON(server.request_body))
+    await server.sendStatus(server.OK)
 
-#configure routes
-server.routes(({
-    (uWeb.GET, "/"): home,
-    (uWeb.GET, "/ten"): printTen,
-    (uWeb.POST, "/post"): post,
-    (uWeb.GET, "/json"): jsonn,
-    (uWeb.GET, "/header"): header
-}))
 
-#start server
+
+def jsonn():  # send JSON to client
+    await server.sendJSON({"status": "okkk"})
+
+
+# configure routes
+server.routes(
+    (
+        {
+            (uWeb.GET, "/"): home,
+            (uWeb.GET, "/ten"): printTen,
+            (uWeb.POST, "/post"): post,
+            (uWeb.GET, "/json"): jsonn,
+            (uWeb.GET, "/header"): header,
+        }
+    )
+)
+
+# start server
 server.start()
 ```
 

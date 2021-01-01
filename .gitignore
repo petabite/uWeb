@@ -1,3 +1,4 @@
+.DS_Store
 # Project files
 uWeb/*
 !uWeb/404.html
@@ -6,7 +7,7 @@ uWeb/*
 !uWeb/layout.html
 !uWeb/uWeb.py
 !uWeb/uWeb_uasyncio.py
-
+main.py
 ### VisualStudioCode ###
 .vscode/
 
